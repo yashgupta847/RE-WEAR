@@ -14,9 +14,9 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  avatar: {
-    type: String
-  },
+  // avatar: {
+  //   type: String
+  // },
   points: {
     type: Number,
     default: 100 // Start with 100 points

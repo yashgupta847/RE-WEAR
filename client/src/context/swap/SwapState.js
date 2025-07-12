@@ -1,7 +1,7 @@
-import React, { useReducer } from 'react';
-import axios from 'axios';
-import SwapContext from './swapContext';
-import swapReducer from './swapReducer';
+import React, { useReducer } from "react";
+import axios from "axios";
+import SwapContext from "./swapContext";
+import swapReducer from "./swapReducer";
 import {
   GET_SWAPS,
   GET_SWAP,
@@ -9,74 +9,72 @@ import {
   UPDATE_SWAP_STATUS,
   ADD_MESSAGE,
   SWAP_ERROR,
-  CLEAR_ERRORS
-} from '../types';
+  CLEAR_ERRORS,
+} from "../types";
 
-const SwapState = props => {
+const SwapState = (props) => {
   const initialState = {
     swaps: [],
     swap: null,
     error: null,
-    loading: true
+    loading: true,
   };
 
   const [state, dispatch] = useReducer(swapReducer, initialState);
 
-  // Get user's swaps
+  // Get all swaps
   const getSwaps = async () => {
     try {
-      const res = await axios.get('/api/swaps');
-
+      const res = await axios.get("/api/swaps");
       dispatch({
         type: GET_SWAPS,
-        payload: res.data
+        payload: res.data,
       });
     } catch (err) {
       dispatch({
         type: SWAP_ERROR,
-        payload: err.response.data.msg
+        payload: err.response?.data?.msg || "Error fetching swaps",
       });
     }
   };
 
   // Get a specific swap
-  const getSwap = async id => {
+  const getSwap = async (id) => {
     try {
       const res = await axios.get(`/api/swaps/${id}`);
-
       dispatch({
         type: GET_SWAP,
-        payload: res.data
+        payload: res.data,
       });
     } catch (err) {
       dispatch({
         type: SWAP_ERROR,
-        payload: err.response.data.msg
+        payload: err.response?.data?.msg || "Error fetching swap",
       });
     }
   };
 
   // Create a new swap request
-  const createSwap = async swapData => {
+  const createSwap = async (swapData) => {
+    console.log("Sending Swap Data:", swapData); 
+
     const config = {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     };
 
     try {
-      const res = await axios.post('/api/swaps', swapData, config);
-
+      const res = await axios.post("/api/swaps", swapData, config);
       dispatch({
         type: CREATE_SWAP,
-        payload: res.data
+        payload: res.data,
       });
-
       return res.data;
     } catch (err) {
       dispatch({
         type: SWAP_ERROR,
-        payload: err.response.data.msg
+        payload: err.response?.data?.msg || "Error creating swap",
       });
       throw err;
     }
@@ -86,8 +84,8 @@ const SwapState = props => {
   const updateSwapStatus = async (id, status) => {
     const config = {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     };
 
     try {
@@ -96,15 +94,14 @@ const SwapState = props => {
         { status },
         config
       );
-
       dispatch({
         type: UPDATE_SWAP_STATUS,
-        payload: res.data
+        payload: res.data,
       });
     } catch (err) {
       dispatch({
         type: SWAP_ERROR,
-        payload: err.response.data.msg
+        payload: err.response?.data?.msg || "Error updating status",
       });
     }
   };
@@ -113,8 +110,8 @@ const SwapState = props => {
   const addMessage = async (id, text) => {
     const config = {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     };
 
     try {
@@ -123,15 +120,14 @@ const SwapState = props => {
         { text },
         config
       );
-
       dispatch({
         type: ADD_MESSAGE,
-        payload: res.data
+        payload: res.data,
       });
     } catch (err) {
       dispatch({
         type: SWAP_ERROR,
-        payload: err.response.data.msg
+        payload: err.response?.data?.msg || "Error adding message",
       });
     }
   };
@@ -147,11 +143,12 @@ const SwapState = props => {
         error: state.error,
         loading: state.loading,
         getSwaps,
+        getUserSwaps: getSwaps, // ✅ Fix: Alias added
         getSwap,
         createSwap,
         updateSwapStatus,
         addMessage,
-        clearErrors
+        clearErrors,
       }}
     >
       {props.children}

@@ -1,7 +1,9 @@
-import React, { useReducer } from 'react';
-import axios from 'axios';
-import ItemContext from './itemContext';
-import itemReducer from './itemReducer';
+import React, { useReducer } from "react";
+import axios from "axios";
+import ItemContext from "./itemContext";
+import itemReducer from "./itemReducer";
+import setAuthToken from "../../utils/setAuthToken";
+
 import {
   GET_ITEMS,
   GET_USER_ITEMS,
@@ -12,93 +14,109 @@ import {
   FILTER_ITEMS,
   CLEAR_FILTER,
   ITEM_ERROR,
-  CLEAR_ERRORS
-} from '../types';
+  CLEAR_ERRORS,
+} from "../types";
 
-const ItemState = props => {
+const ItemState = (props) => {
   const initialState = {
     items: [],
     userItems: [],
     item: null,
     filtered: null,
     error: null,
-    loading: true
+    loading: true,
   };
+
+  if (localStorage.token) {
+    setAuthToken(localStorage.token); // ✅
+  }
 
   const [state, dispatch] = useReducer(itemReducer, initialState);
 
   // Get all items
   const getItems = async () => {
+    if (localStorage.token) {
+      setAuthToken(localStorage.token); // ✅ Set the token in global headers
+    }
     try {
-      const res = await axios.get('/api/items');
+      const res = await axios.get("/api/items");
 
       dispatch({
         type: GET_ITEMS,
-        payload: res.data
+        payload: res.data,
       });
     } catch (err) {
       dispatch({
         type: ITEM_ERROR,
-        payload: err.response.data.msg
+        payload: err.response.data.msg,
       });
     }
   };
 
   // Get user's items
   const getUserItems = async () => {
+    if (localStorage.token) {
+      setAuthToken(localStorage.token); // ✅ Set the token in global headers
+    }
     try {
-      const res = await axios.get('/api/items/user');
+      const res = await axios.get("/api/items/user");
 
       dispatch({
         type: GET_USER_ITEMS,
-        payload: res.data
+        payload: res.data,
       });
     } catch (err) {
       dispatch({
         type: ITEM_ERROR,
-        payload: err.response.data.msg
+        payload: err.response.data.msg,
       });
     }
   };
 
   // Get a specific item
-  const getItem = async id => {
+  const getItem = async (id) => {
+    if (localStorage.token) {
+      setAuthToken(localStorage.token); // ✅ Set the token in global headers
+    }
     try {
       const res = await axios.get(`/api/items/${id}`);
 
       dispatch({
         type: GET_ITEM,
-        payload: res.data
+        payload: res.data,
       });
     } catch (err) {
       dispatch({
         type: ITEM_ERROR,
-        payload: err.response.data.msg
+        payload: err.response.data.msg,
       });
     }
   };
 
   // Add a new item
-  const addItem = async formData => {
+  const addItem = async (formData) => {
+    if (localStorage.token) {
+      setAuthToken(localStorage.token); // ✅ Set the token in global headers
+    }
     const config = {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     };
 
     try {
-      const res = await axios.post('/api/items', formData, config);
+      const res = await axios.post("/api/items", formData, config);
 
       dispatch({
         type: ADD_ITEM,
-        payload: res.data
+        payload: res.data,
       });
 
       return res.data;
     } catch (err) {
       dispatch({
         type: ITEM_ERROR,
-        payload: err.response.data.msg
+        payload: err.response.data.msg,
       });
       throw err;
     }
@@ -106,10 +124,13 @@ const ItemState = props => {
 
   // Update an item
   const updateItem = async (id, formData) => {
+    if (localStorage.token) {
+      setAuthToken(localStorage.token); // ✅ Set the token in global headers
+    }
     const config = {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     };
 
     try {
@@ -117,38 +138,41 @@ const ItemState = props => {
 
       dispatch({
         type: UPDATE_ITEM,
-        payload: res.data
+        payload: res.data,
       });
     } catch (err) {
       dispatch({
         type: ITEM_ERROR,
-        payload: err.response.data.msg
+        payload: err.response.data.msg,
       });
     }
   };
 
   // Delete an item
-  const deleteItem = async id => {
+  const deleteItem = async (id) => {
+    if (localStorage.token) {
+      setAuthToken(localStorage.token); // ✅ Set the token in global headers
+    }
     try {
       await axios.delete(`/api/items/${id}`);
 
       dispatch({
         type: DELETE_ITEM,
-        payload: id
+        payload: id,
       });
     } catch (err) {
       dispatch({
         type: ITEM_ERROR,
-        payload: err.response.data.msg
+        payload: err.response.data.msg,
       });
     }
   };
 
   // Filter items
-  const filterItems = filters => {
+  const filterItems = (filters) => {
     dispatch({
       type: FILTER_ITEMS,
-      payload: filters
+      payload: filters,
     });
   };
 
@@ -177,7 +201,7 @@ const ItemState = props => {
         deleteItem,
         filterItems,
         clearFilter,
-        clearErrors
+        clearErrors,
       }}
     >
       {props.children}

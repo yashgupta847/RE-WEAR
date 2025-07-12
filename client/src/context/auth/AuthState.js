@@ -1,8 +1,8 @@
-import React, { useReducer } from 'react';
-import axios from 'axios';
-import AuthContext from './authContext';
-import authReducer from './authReducer';
-import setAuthToken from '../../utils/setAuthToken';
+import React, { useReducer } from "react";
+import axios from "axios";
+import AuthContext from "./authContext";
+import authReducer from "./authReducer";
+import setAuthToken from "../../utils/setAuthToken";
 import {
   REGISTER_SUCCESS,
   REGISTER_FAIL,
@@ -13,16 +13,20 @@ import {
   LOGOUT,
   CLEAR_ERRORS,
   UPDATE_PROFILE_SUCCESS,
-  UPDATE_PROFILE_FAIL
-} from '../types';
+  UPDATE_PROFILE_FAIL,
+} from "../types";
 
-const AuthState = props => {
+if (localStorage.token) {
+  setAuthToken(localStorage.token); // ✅ Set globally on app load
+}
+
+const AuthState = (props) => {
   const initialState = {
-    token: localStorage.getItem('token'),
+    token: localStorage.getItem("token"),
     isAuthenticated: null,
     loading: true,
     user: null,
-    error: null
+    error: null,
   };
 
   const [state, dispatch] = useReducer(authReducer, initialState);
@@ -34,11 +38,11 @@ const AuthState = props => {
     }
 
     try {
-      const res = await axios.get('/api/auth');
+      const res = await axios.get("/api/auth");
 
       dispatch({
         type: USER_LOADED,
-        payload: res.data
+        payload: res.data,
       });
     } catch (err) {
       dispatch({ type: AUTH_ERROR });
@@ -46,74 +50,78 @@ const AuthState = props => {
   };
 
   // Register User
-  const register = async formData => {
+  const register = async (formData) => {
+    console.log("Registering User:", formData);
+
     const config = {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     };
 
     try {
-      const res = await axios.post('/api/users', formData, config);
+      const res = await axios.post("/api/users", formData, config);
 
       dispatch({
         type: REGISTER_SUCCESS,
-        payload: res.data
+        payload: res.data,
       });
-
+      localStorage.setItem("token", res.data.token);
+      setAuthToken(res.data.token);
       loadUser();
     } catch (err) {
       dispatch({
         type: REGISTER_FAIL,
-        payload: err.response.data.msg || 'Registration failed'
+        payload: err.response?.data?.errors?.[0]?.msg || "Registration failed",
       });
     }
   };
 
   // Login User
-  const login = async formData => {
+  const login = async (formData) => {
     const config = {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     };
 
     try {
-      const res = await axios.post('/api/auth', formData, config);
+      const res = await axios.post("/api/auth", formData, config);
 
       dispatch({
         type: LOGIN_SUCCESS,
-        payload: res.data
+        payload: res.data,
       });
-
+      setAuthToken(res.data.token);
+      localStorage.setItem("token", res.data.token);
       loadUser();
     } catch (err) {
       dispatch({
         type: LOGIN_FAIL,
-        payload: err.response.data.msg || 'Login failed'
+        payload: err.response.data.msg || "Login failed",
       });
     }
   };
 
   // Update Profile
-  const updateProfile = async formData => {
+  const updateProfile = async (formData) => {
     const config = {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     };
 
     try {
-      const res = await axios.put('/api/users/profile', formData, config);
+      const res = await axios.put("/api/users/profile", formData, config);
 
       dispatch({
         type: UPDATE_PROFILE_SUCCESS,
-        payload: res.data
+        payload: res.data,
       });
     } catch (err) {
       dispatch({
         type: UPDATE_PROFILE_FAIL,
-        payload: err.response.data.msg || 'Profile update failed'
+        payload: err.response.data.msg || "Profile update failed",
       });
     }
   };
@@ -137,7 +145,7 @@ const AuthState = props => {
         login,
         logout,
         clearErrors,
-        updateProfile
+        updateProfile,
       }}
     >
       {props.children}

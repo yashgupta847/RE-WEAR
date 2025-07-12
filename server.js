@@ -14,11 +14,11 @@ app.use(express.json({ extended: false }));
 app.use(cors());
 
 // Define Routes
-app.use('/api/users', require('./routes/api/users'));
-app.use('/api/auth', require('./routes/api/auth'));
-app.use('/api/items', require('./routes/api/items'));
-app.use('/api/swaps', require('./routes/api/swaps'));
-app.use('/api/admin', require('./routes/api/admin'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/items', require('./routes/items'));
+app.use('/api/swaps', require('./routes/swaps'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
